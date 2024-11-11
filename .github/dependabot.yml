@@ -5,9 +5,13 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5           # limit the number of PRs open simultaneously
+    labels:
+      - dependencies
 
   - package-ecosystem: "gradle"
     directory: "/sample"                  # sample
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
+    labels:
+      - dependencies
