@@ -28,7 +28,6 @@ kotlin {
 
     }
     commonMain.dependencies {
-      implementation(libs.androidx.compose.bom)
       implementation(compose.foundation)
       implementation(compose.ui)
     }
@@ -59,7 +58,6 @@ android {
 
   sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
   sourceSets["main"].res.srcDirs("src/androidMain/res")
-//  sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
