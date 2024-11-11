@@ -4,9 +4,9 @@ Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visua
 
 ## Preview
 
-| Platform |                        Default Style                         |                         Custom Style                         |      |
-| :------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :--: |
-| Android  | ![Android-Default-Style](D:\UserData\Develop\Common\Projects\Compose\Compose-HeatMap\images\Android\preview-default.jpg) | ![Android-Custom-Style](D:\UserData\Develop\Common\Projects\Compose\Compose-HeatMap\images\Android\preview-custom.jpg) |      |
+| Platform |                        Default Style                         |                         Custom Style                         |
+| :------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Android  | ![Android-Default-Style](./images/Android/preview-default.jpg) | ![Android-Custom-Style](./images/Android/preview-custom.jpg) |
 
 ## Overview
 
