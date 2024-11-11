@@ -8,7 +8,6 @@ compose-plugin = "1.6.11"
 lifecycleRuntimeKtx = "2.8.7"
 material = "1.12.0"
 maven = "0.29.0"
-composeBom = "2024.10.00"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -19,7 +18,6 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

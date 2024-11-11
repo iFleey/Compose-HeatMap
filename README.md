@@ -1,14 +1,15 @@
 # Compose-HeatMap
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.fleeys/heatmap)](https://central.sonatype.com/artifact/com.fleeys/heatmap) ![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android)
+[![Maven Central](https://img.shields.io/maven-central/v/com.fleeys/heatmap)](https://central.sonatype.com/artifact/com.fleeys/heatmap) ![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android) ![Desktop](https://img.shields.io/badge/Platform-Desktop-8A2BE2.svg?logo=openjdk) 
 
 Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visualizing a variety of time-based data patterns.
 
 ## Preview
 
-| Platform |                        Default Style                         |                         Custom Style                         |
-| :------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| Android  | ![Android-Default-Style](./images/Android/preview-default.jpg) | ![Android-Custom-Style](./images/Android/preview-custom.jpg) |
+| Platform |                     Default Style                      |                     Custom Style                     |
+| :------: | :----------------------------------------------------: | :--------------------------------------------------: |
+| Android  | ![Default-Style](./images/Android/preview-default.jpg) | ![Custom-Style](./images/Android/preview-custom.jpg) |
+| Desktop  | ![Default-Style](./images/Desktop/preview-default.png) | ![Custom-Style](./images/Desktop/preview-custom.png) |
 
 ## Usage
 
@@ -53,18 +54,27 @@ Works right out of the box without much setup.
 
 @Composable
 fun SampleHeatMap() {
+  var heatMapStyle by remember { mutableStateOf<HeatMapStyle?>(null) }
+  val toggleStyle = { heatMapStyle = if (heatMapStyle == null) CustomHeatMapStyle else null }
+
   Box(
-    Modifier
+    modifier = Modifier
       .fillMaxSize()
       .background(Color.Black)
-      .padding(16.dp),
-    contentAlignment = Alignment.Center
+      .padding(16.dp)
   ) {
     HeatMap(
-      style = HeatMapStyle(),
-      data = generateHeats()
+      style = heatMapStyle ?: HeatMapStyle(),
+      data = generateHeats(),
+    ) { println("Clicked: $it") }
+
+    Button(
+      onClick = toggleStyle,
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .padding(16.dp)
     ) {
-      println("Clicked: $it")
+      Text("Toggle Style")
     }
   }
 }
@@ -100,6 +110,19 @@ data class HeatMapStyle(
   val heatMapPadding: PaddingValues = PaddingValues(0.dp),
   val startFromEnd: Boolean = true
 )
+
+// Sample Custom Style
+// ../sample/src/commonMain/kotlin/com/fleeys/heatmap/sample/CustomHeatMapStyle.kt
+internal val CustomHeatMapStyle = HeatMapStyle().copy(
+  heatStyle = HeatStyle().copy(
+    heatColor = HeatColor().copy(
+      activeLowestColor = Color(0xff212f57),
+      activeHighestColor = Color(0xff456de3),
+    ),
+    heatShape = CircleShape,
+  ),
+  startFromEnd = false
+)
 ```
 
 ### Interactivity
@@ -128,11 +151,11 @@ This project is built on Compose in an attempt to adapt to the Compose Multiplat
 
 The currently adapted platforms are listed below:
 
-| Platform |   State   |                            Sample                            |
-| :------: | :-------: | :----------------------------------------------------------: |
-| Android  |     ✅     | [Android-Sample](./sample/src/androidMain/kotlin/com/fleeys/heatmap/sample/MainActivity.kt) |
-| Desktop  | :clock10: |                         coming soon                          |
-|   ...    |           |                                                              |
+| Platform | State |                            Sample                            |
+| :------: | :---: | :----------------------------------------------------------: |
+| Android  |   ✅   | [Android-Sample](./sample/src/androidMain/kotlin/com/fleeys/heatmap/sample/MainActivity.kt) |
+| Desktop  |   ✅   | [Desktop-Sample](./sample/src/desktopMain/kotlin/com/fleeys/heatmap/sample/Main.kt) |
+|   ...    |       |                                                              |
 
 ## Contribution
 
