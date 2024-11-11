@@ -17,7 +17,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,18 +36,27 @@ import kotlin.random.Random
 
 @Composable
 fun SampleHeatMap() {
+  var heatMapStyle by remember { mutableStateOf<HeatMapStyle?>(null) }
+  val toggleStyle = { heatMapStyle = if (heatMapStyle == null) CustomHeatMapStyle else null }
+
   Box(
-    Modifier
+    modifier = Modifier
       .fillMaxSize()
       .background(Color.Black)
-      .padding(16.dp),
-    contentAlignment = Alignment.Center
+      .padding(16.dp)
   ) {
     HeatMap(
-      style = HeatMapStyle(),
-      data = generateHeats()
+      style = heatMapStyle ?: HeatMapStyle(),
+      data = generateHeats(),
+    ) { println("Clicked: $it") }
+
+    Button(
+      onClick = toggleStyle,
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .padding(16.dp)
     ) {
-      println("Clicked: $it")
+      Text("Toggle Style")
     }
   }
 }
