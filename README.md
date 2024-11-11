@@ -1,5 +1,7 @@
 # Compose-HeatMap
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.fleeys/heatmap)](https://central.sonatype.com/artifact/com.fleeys/heatmap) ![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android)
+
 Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visualizing a variety of time-based data patterns.
 
 ## Preview
@@ -7,6 +9,20 @@ Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visua
 | Platform |                        Default Style                         |                         Custom Style                         |
 | :------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | Android  | ![Android-Default-Style](./images/Android/preview-default.jpg) | ![Android-Custom-Style](./images/Android/preview-custom.jpg) |
+
+## Usage
+
+> build.gradle.kts
+
+```kotlin
+implementation("com.fleeys:heatmap:1.0.0")
+```
+
+> build.gradle
+
+```groovy
+implementation 'com.fleeys:heatmap:1.0.0'
+```
 
 ## Overview
 
@@ -23,6 +39,10 @@ fun <T> HeatMap(
 ```
 
 ## Features
+
+
+> [!IMPORTANT]  
+> The project is in the experimental phase. All APIs can change incompatibly or be dropped without the deprecation cycle!
 
 ### Easy to use
 
@@ -102,7 +122,7 @@ data class Heat<T>(
 )
 ```
 
-## supportive
+## Supportive
 
 This project is built on Compose in an attempt to adapt to the Compose Multiplatform.
 
