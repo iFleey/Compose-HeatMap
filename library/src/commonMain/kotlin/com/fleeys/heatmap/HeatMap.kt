@@ -28,14 +28,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +61,8 @@ import com.fleeys.heatmap.style.LabelPosition
 import com.fleeys.heatmap.style.LabelStyle
 import com.fleeys.heatmap.style.MonthsLabelStyle
 import com.fleeys.heatmap.util.getLocalizedMonthName
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
@@ -69,19 +75,39 @@ fun <T> HeatMap(
   modifier: Modifier = Modifier,
   data: List<Heat<T>>,
   style: HeatMapStyle = HeatMapStyle(),
-  onHeatClick: (Heat<T>) -> Unit
+  scrollState: LazyListState = rememberLazyListState(),
+  onScrolledToTop: (() -> Unit)? = null,
+  onScrolledToBottom: (() -> Unit)? = null,
+  onHeatClick: (Heat<T>) -> Unit,
 ) {
   val heatAggregator = remember(data) { HeatAggregator(data) }
   val weeks = heatAggregator.weeks
   val valuesRange = heatAggregator.getValueRange()
   var selectedHeat by remember { mutableStateOf<Heat<T>?>(null) }
 
+  val daysLabelStyle = style.labelStyle.daysLabelStyle
+
+  LaunchedEffect(scrollState) {
+    snapshotFlow { scrollState.layoutInfo.visibleItemsInfo }
+      .map { visibleItems ->
+        Pair(
+          visibleItems.firstOrNull()?.index == 0,
+          visibleItems.lastOrNull()?.index == weeks.lastIndex
+        )
+      }.distinctUntilChanged()
+      .collect { (isAtTop, isAtBottom) ->
+        if (isAtTop) onScrolledToTop?.invoke()
+        if (isAtBottom) onScrolledToBottom?.invoke()
+      }
+  }
+
   Row(modifier) {
-    if (style.labelStyle.daysLabelStyle.position == LabelPosition.START) {
+    if (daysLabelStyle.position == LabelPosition.START && daysLabelStyle.showLabel) {
       DaysOfWeekLabelsColumn(style.labelStyle)
     }
 
     LazyRow(
+      state = scrollState,
       reverseLayout = style.startFromEnd,
       modifier = Modifier.weight(1f).padding(style.heatMapPadding)
     ) {
@@ -99,7 +125,7 @@ fun <T> HeatMap(
       }
     }
 
-    if (style.labelStyle.daysLabelStyle.position == LabelPosition.END) {
+    if (daysLabelStyle.position == LabelPosition.END && daysLabelStyle.showLabel) {
       DaysOfWeekLabelsColumn(style.labelStyle)
     }
   }
@@ -147,11 +173,14 @@ private fun <T> WeekColumn(
   selectedHeat: Heat<T>? = null,
   onHeatClick: (Heat<T>) -> Unit,
 ) {
+  val monthsLabelStyle = style.labelStyle.monthsLabelStyle
   Column {
-    if (style.labelStyle.monthsLabelStyle.position == LabelPosition.TOP) {
+    if (monthsLabelStyle.position == LabelPosition.TOP &&
+      monthsLabelStyle.showLabel
+    ) {
       MonthLabel(
         week = week,
-        style = style.labelStyle.monthsLabelStyle
+        style = monthsLabelStyle
       )
     }
 
@@ -170,7 +199,9 @@ private fun <T> WeekColumn(
       )
     }
 
-    if (style.labelStyle.monthsLabelStyle.position == LabelPosition.BOTTOM) {
+    if (monthsLabelStyle.position == LabelPosition.BOTTOM &&
+      monthsLabelStyle.showLabel
+    ) {
       MonthLabel(
         week = week,
         style = style.labelStyle.monthsLabelStyle

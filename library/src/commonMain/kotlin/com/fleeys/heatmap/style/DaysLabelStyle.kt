@@ -34,7 +34,8 @@ data class DaysLabelStyle(
   val namesOfWeek: List<String> = defaultNameOfWeek,
   val fontStyle: DaysLabelFontStyle = DaysLabelFontStyle(),
   val color: DaysLabelColor = DaysLabelColor(),
-  val padding: PaddingValues = PaddingValues(2.dp)
+  val padding: PaddingValues = PaddingValues(2.dp),
+  val showLabel: Boolean = true
 )
 
 @Immutable

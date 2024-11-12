@@ -15,14 +15,17 @@ package com.fleeys.heatmap.sample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.fleeys.heatmap.HeatMap
 import com.fleeys.heatmap.model.Heat
 import com.fleeys.heatmap.style.HeatMapStyle
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -42,6 +46,9 @@ import kotlin.random.Random
 
 @Composable
 fun SampleHeatMap() {
+  val scrollState = rememberLazyListState()
+  val coroutineScope = rememberCoroutineScope()
+
   var heatMapStyle by remember { mutableStateOf<HeatMapStyle?>(null) }
   val toggleStyle = { heatMapStyle = if (heatMapStyle == null) CustomHeatMapStyle else null }
 
@@ -52,17 +59,39 @@ fun SampleHeatMap() {
       .padding(16.dp)
   ) {
     HeatMap(
-      style = heatMapStyle ?: HeatMapStyle(),
       data = generateHeats(),
+      scrollState = scrollState,
+      style = heatMapStyle ?: HeatMapStyle(),
+      onScrolledToTop = { println("Scrolled to Top") },
+      onScrolledToBottom = { println("Scrolled to Bottom") }
     ) { println("Clicked: $it") }
 
-    Button(
-      onClick = toggleStyle,
+    Column(
       modifier = Modifier
         .align(Alignment.BottomCenter)
-        .padding(16.dp)
+        .padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text("Toggle Style")
+      Button(
+        onClick = toggleStyle,
+      ) {
+        Text("Toggle Style")
+      }
+      Button(onClick = {
+        coroutineScope.launch {
+          scrollState.animateScrollToItem(0)
+        }
+      }) {
+        Text("Scroll to Top")
+      }
+
+      Button(onClick = {
+        coroutineScope.launch {
+          scrollState.animateScrollToItem(scrollState.layoutInfo.totalItemsCount - 1)
+        }
+      }) {
+        Text("Scroll to Bottom")
+      }
     }
   }
 }

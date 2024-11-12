@@ -32,6 +32,7 @@ data class MonthsLabelStyle(
   val fontStyle: MonthsLabelFontStyle = MonthsLabelFontStyle(),
   val color: MonthsLabelColor = MonthsLabelColor(),
   val padding: PaddingValues = PaddingValues(2.dp),
+  val showLabel: Boolean = true
 )
 
 @Immutable
