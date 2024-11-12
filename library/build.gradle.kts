@@ -30,20 +30,14 @@ kotlin {
   wasmJs {
     moduleName = "heatmap"
     browser {
-      val rootDirPath = project.rootDir.path
-      val projectDirPath = project.projectDir.path
+      binaries.executable()
       commonWebpackConfig {
         outputFileName = "heatmap.js"
-        devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-          static = (static ?: mutableListOf()).apply {
-            // Serve sources to debug inside browser
-            add(rootDirPath)
-            add(projectDirPath)
-          }
-        }
+        devServer = KotlinWebpackConfig.DevServer(
+          static = mutableListOf("build/processedResources/wasmJs/main")
+        )
       }
     }
-    binaries.executable()
   }
 
   jvm("desktop")
@@ -51,6 +45,7 @@ kotlin {
   sourceSets {
     val desktopMain by getting
     val desktopTest by getting
+    val wasmJsMain by getting
 
     androidMain.dependencies {
       implementation(libs.androidx.activity.compose)
@@ -97,3 +92,11 @@ android {
   }
 
 }
+
+tasks.register<Copy>("copyJsResources") {
+  from("src/wasmJsMain/resources")
+  into("build/processedResources/wasmJs/main")
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE // 设置重复处理策略
+}
+
+tasks.getByName("wasmJsProcessResources").dependsOn("copyJsResources")

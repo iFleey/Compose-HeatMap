@@ -27,19 +27,15 @@ kotlin {
 
   @OptIn(ExperimentalWasmDsl::class)
   wasmJs {
-    moduleName = "heatmap-sampple"
+    moduleName = "heatmap-sample"
     browser {
-      val rootDirPath = project.rootDir.path
-      val projectDirPath = project.projectDir.path
+      binaries.executable()
       commonWebpackConfig {
         outputFileName = "heatmap-sample.js"
-        devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-          static = (static ?: mutableListOf()).apply {
-            // Serve sources to debug inside browser
-            add(rootDirPath)
-            add(projectDirPath)
-          }
-        }
+        outputPath = file("$buildDir/distributions")
+        devServer = KotlinWebpackConfig.DevServer(
+          static = mutableListOf("$buildDir/distributions")
+        )
       }
     }
     binaries.executable()
@@ -128,3 +124,31 @@ compose.desktop {
     }
   }
 }
+
+tasks.register<Copy>("copyHelperJs") {
+  from(project(":library").file("src/wasmJsMain/resources/helper.js"))
+  into("$buildDir/distributions")
+}
+
+tasks.register<Copy>("copyHtml") {
+  from(file("src/wasmJsMain/resources/index.html"))
+  into("$buildDir/distributions")
+}
+
+tasks.register<Copy>("copyWasmFile") {
+  dependsOn("compileDevelopmentExecutableKotlinWasmJs")
+  from(file("$buildDir/compileSync/wasmJs/main/developmentExecutable/kotlin/heatmap-sample.wasm"))
+  into("$buildDir/distributions")
+  doLast {
+    println("Attempted to copy heatmap-sample.wasm from $buildDir/compileSync/wasmJs/main/developmentExecutable/kotlin/")
+    if (!file("$buildDir/compileSync/wasmJs/main/developmentExecutable/kotlin/heatmap-sample.wasm").exists()) {
+      println("File not found! Check if the path is correct.")
+    } else {
+      println("Copied heatmap-sample.wasm to distributions directory.")
+    }
+  }
+}
+
+tasks.getByName("wasmJsBrowserRun").dependsOn("copyHelperJs")
+tasks.getByName("wasmJsBrowserRun").dependsOn("copyHtml")
+tasks.getByName("wasmJsBrowserRun").dependsOn("copyWasmFile")

@@ -11,20 +11,7 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalJsExport::class)
+
 package com.fleeys.heatmap.util
 
-import kotlinx.datetime.Month
-
-@JsFun("getLocalMonth")
-external fun getLocalMonth(monthIndex: Int): String
-
-// implement `actual` function by js, but in wasm env lol
-actual fun getLocalizedMonthName(month: Month): String {
-  return getLocalMonth(month.ordinal)
-}
-
-@OptIn(ExperimentalJsExport::class)
-@JsExport
-fun allocate(size: Int): Int {
-  return 0 // 占位返回值
-}

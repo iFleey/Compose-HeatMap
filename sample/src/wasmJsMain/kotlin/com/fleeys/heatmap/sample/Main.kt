@@ -11,20 +11,14 @@
  * limitations under the License.
  */
 
-package com.fleeys.heatmap.util
+package com.fleeys.heatmap.sample
 
-import kotlinx.datetime.Month
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.CanvasBasedWindow
 
-@JsFun("getLocalMonth")
-external fun getLocalMonth(monthIndex: Int): String
-
-// implement `actual` function by js, but in wasm env lol
-actual fun getLocalizedMonthName(month: Month): String {
-  return getLocalMonth(month.ordinal)
-}
-
-@OptIn(ExperimentalJsExport::class)
-@JsExport
-fun allocate(size: Int): Int {
-  return 0 // 占位返回值
+@OptIn(ExperimentalComposeUiApi::class)
+fun main() {
+  CanvasBasedWindow(canvasElementId = "ComposeTarget") {
+    SampleHeatMap()
+  }
 }
