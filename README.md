@@ -14,6 +14,10 @@ Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visua
 
 ## Usage
 
+This project is based on `kotlinx-datetime` for LocalDate-related operations, not `java.time.*`!
+
+refer to [kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime) to add dep.
+
 > build.gradle.kts
 
 ```kotlin
@@ -48,8 +52,6 @@ fun <T> HeatMap(
 
 > [!IMPORTANT]  
 > The project is in the experimental phase. All APIs can change incompatibly or be dropped without the deprecation cycle!
->
-> This project is based on `kotlinx-datetime` for LocalDate-related operations, not `java.time.*`!
 
 ### Easy to use
 
