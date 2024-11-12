@@ -18,10 +18,10 @@ function allocate(instance, str) {
   // usage `allocate` from  WebAssembly
   const ptr = instance.exports.allocate(encodedStr.length + 1);
 
-  // get mem from WebAssembly
+  // get memory from WebAssembly
   const memory = new Uint8Array(instance.exports.memory.buffer);
   memory.set(encodedStr, ptr);
-  memory[ptr + encodedStr.length] = 0; // Null to stop
+  memory[ptr + encodedStr.length] = 0;
 
   return ptr; // return ptr
 }
@@ -35,7 +35,7 @@ async function loadWasm() {
     env: {
       getLocalMonth: (monthIndex) => {
         const monthName = getLocalMonth(monthIndex);
-        console.log("本地化月份名称：", monthName);
+        console.log("Locale month name：", monthName);
         return allocate(instance, monthName);
       }
     }

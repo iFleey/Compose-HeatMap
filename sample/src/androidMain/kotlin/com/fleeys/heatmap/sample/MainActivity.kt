@@ -27,9 +27,7 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge(systemBarStyle, systemBarStyle)
     super.onCreate(savedInstanceState)
 
-    setContent {
-      SampleHeatMap()
-    }
+    setContent { SampleHeatMap() }
   }
 
 }
