@@ -63,7 +63,6 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import kotlin.time.ExperimentalTime
 
 @Composable
 fun <T> HeatMap(
@@ -275,7 +274,6 @@ private fun <T> HeatItem(
   }
 }
 
-@OptIn(ExperimentalTime::class)
 fun <T> getMonthText(week: HeatWeek<T>): String {
   val dateTime = week.startOfWeek
   val month = dateTime.month
