@@ -105,7 +105,7 @@ mavenPublishing {
   signAllPublications()
   publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-  coordinates("com.fleeys", "heatmap", "1.0.3")
+  coordinates("com.fleeys", "heatmap", "1.0.5")
 
   pom {
     name.set("heatmap")
