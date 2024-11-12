@@ -26,5 +26,5 @@ actual fun getLocalizedMonthName(month: Month): String {
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun allocate(size: Int): Int {
-  return 0 // 占位返回值
+  return 0
 }

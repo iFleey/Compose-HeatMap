@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -45,7 +46,6 @@ kotlin {
   sourceSets {
     val desktopMain by getting
     val desktopTest by getting
-    val wasmJsMain by getting
 
     androidMain.dependencies {
       implementation(libs.androidx.activity.compose)
@@ -96,7 +96,40 @@ android {
 tasks.register<Copy>("copyJsResources") {
   from("src/wasmJsMain/resources")
   into("build/processedResources/wasmJs/main")
-  duplicatesStrategy = DuplicatesStrategy.INCLUDE // 设置重复处理策略
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.getByName("wasmJsProcessResources").dependsOn("copyJsResources")
+
+mavenPublishing {
+  signAllPublications()
+  publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+  coordinates("com.fleeys", "heatmap", "1.0.3")
+
+  pom {
+    name.set("heatmap")
+    description.set("Effortlessly create GitHub-style heatmaps in Jetpack Compose?perfect for visualizing a variety of time-based data patterns.")
+    inceptionYear.set("2024")
+    url.set("https://github.com/iFleey/Compose-HeatMap")
+    licenses {
+      license {
+        name.set("The Apache License, Version 2.0")
+        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+        distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+      }
+    }
+    developers {
+      developer {
+        id.set("fleey")
+        name.set("fleey")
+        url.set("https://github.com/iFleey")
+      }
+    }
+    scm {
+      url.set("https://github.com/iFleey/Compose-HeatMap")
+      connection.set("scm:git:git://github.com/iFleey/Compose-HeatMap.git")
+      developerConnection.set("scm:git:ssh://git@github.com/iFleey/Compose-HeatMap.git")
+    }
+  }
+}
