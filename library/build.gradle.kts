@@ -1,3 +1,9 @@
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.kotlinMultiplatform)
@@ -9,12 +15,22 @@ plugins {
 kotlin {
   jvmToolchain(17)
 
+  wasmJs {
+    moduleName = "heatmap"
+    browser {
+      commonWebpackConfig {
+        outputFileName = "heatmap.js"
+      }
+    }
+    binaries.executable()
+  }
+
+
   androidTarget {
     publishLibraryVariants("release")
-    compilations.all {
-      kotlinOptions {
-        jvmTarget = "17"
-      }
+
+    compilerOptions {
+      apiVersion.set(KotlinVersion.KOTLIN_2_0)
     }
   }
 
@@ -22,10 +38,10 @@ kotlin {
 
   sourceSets {
     val desktopMain by getting
+    val desktopTest by getting
 
     androidMain.dependencies {
       implementation(libs.androidx.activity.compose)
-
     }
     commonMain.dependencies {
       implementation(compose.foundation)
@@ -37,12 +53,11 @@ kotlin {
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }
-    val desktopTest by getting {
-      dependencies {
-        implementation(compose.desktop.uiTestJUnit4)
-      }
+    desktopTest.dependencies {
+      implementation(compose.desktop.uiTestJUnit4)
     }
   }
+
 }
 
 android {
@@ -67,4 +82,5 @@ android {
   dependencies {
     debugImplementation(libs.compose.ui.tooling)
   }
+  
 }

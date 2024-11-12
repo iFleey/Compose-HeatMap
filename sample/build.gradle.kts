@@ -1,4 +1,9 @@
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
   alias(libs.plugins.androidApplication)
@@ -10,41 +15,49 @@ plugins {
 kotlin {
   jvmToolchain(17)
 
-  androidTarget {
-    compilations.all {
-      kotlinOptions {
-        jvmTarget = "17"
+  wasmJs {
+    moduleName = "heatmap"
+    browser {
+      commonWebpackConfig {
+        outputFileName = "heatmap.js"
       }
+    }
+    binaries.executable()
+  }
+
+  androidTarget {
+
+    compilerOptions {
+      apiVersion.set(KotlinVersion.KOTLIN_2_0)
     }
   }
 
   jvm("desktop")
 
   sourceSets {
-    val commonMain by getting {
-      dependencies {
-        implementation(project(":library"))
-        implementation(compose.material)
-        implementation(compose.material3)
-      }
+    val commonMain by getting
+    val androidMain by getting
+    val desktopMain by getting
+
+    commonMain.dependencies {
+      implementation(project(":library"))
+      implementation(compose.material)
+      implementation(compose.material3)
     }
 
-    val androidMain by getting {
-      dependencies {
-        implementation(libs.androidx.core.ktx)
-        implementation(libs.androidx.appcompat)
-        implementation(libs.material)
-        implementation(libs.androidx.lifecycle.runtime.ktx)
-        implementation(libs.androidx.activity.compose)
-        implementation(libs.compose.ui.tooling.preview)
-      }
+    androidMain.dependencies {
+      implementation(libs.androidx.core.ktx)
+      implementation(libs.androidx.appcompat)
+      implementation(libs.material)
+      implementation(libs.androidx.lifecycle.runtime.ktx)
+      implementation(libs.androidx.activity.compose)
+      implementation(libs.compose.ui.tooling.preview)
     }
 
-    val desktopMain by getting {
-      dependencies {
-        implementation(compose.desktop.currentOs)
-      }
+    desktopMain.dependencies {
+      implementation(compose.desktop.currentOs)
     }
+
   }
 }
 
@@ -77,6 +90,7 @@ android {
       signingConfig = signingConfigs.getByName("debug")
     }
   }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
