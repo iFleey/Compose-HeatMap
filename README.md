@@ -1,6 +1,6 @@
 # Compose-HeatMap
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.fleeys/heatmap)](https://central.sonatype.com/artifact/com.fleeys/heatmap) ![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android) ![Desktop](https://img.shields.io/badge/Platform-Desktop-8A2BE2.svg?logo=openjdk) 
+[![Maven Central](https://img.shields.io/maven-central/v/com.fleeys/heatmap)](https://central.sonatype.com/artifact/com.fleeys/heatmap) ![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg?logo=android) ![Desktop](https://img.shields.io/badge/Platform-Desktop-8A2BE2.svg?logo=openjdk) ![WasmJS](https://img.shields.io/badge/Platform-WASM%20%2F%20JS-yellow.svg?logo=javascript)
 
 Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visualizing a variety of time-based data patterns.
 
@@ -10,19 +10,20 @@ Effortlessly create GitHub-style heatmaps in Jetpack Compose—perfect for visua
 | :------: | :----------------------------------------------------: | :--------------------------------------------------: |
 | Android  | ![Default-Style](./images/Android/preview-default.jpg) | ![Custom-Style](./images/Android/preview-custom.jpg) |
 | Desktop  | ![Default-Style](./images/Desktop/preview-default.png) | ![Custom-Style](./images/Desktop/preview-custom.png) |
+|  WasmJs  | ![Default-Style](./images/WasmJs/preview-default.png)  | ![Default-Style](./images/WasmJs/preview-custom.png) |
 
 ## Usage
 
 > build.gradle.kts
 
 ```kotlin
-implementation("com.fleeys:heatmap:1.0.0")
+implementation("com.fleeys:heatmap:1.0.5")
 ```
 
 > build.gradle
 
 ```groovy
-implementation 'com.fleeys:heatmap:1.0.0'
+implementation 'com.fleeys:heatmap:1.0.5'
 ```
 
 ## Overview
@@ -35,7 +36,10 @@ fun <T> HeatMap(
   modifier: Modifier = Modifier,
   data: List<Heat<T>>,
   style: HeatMapStyle = HeatMapStyle(),
-  onHeatClick: (Heat<T>) -> Unit
+  scrollState: LazyListState = rememberLazyListState(),
+  onScrolledToTop: (() -> Unit)? = null,
+  onScrolledToBottom: (() -> Unit)? = null,
+  onHeatClick: (Heat<T>) -> Unit,
 )
 ```
 
@@ -44,6 +48,8 @@ fun <T> HeatMap(
 
 > [!IMPORTANT]  
 > The project is in the experimental phase. All APIs can change incompatibly or be dropped without the deprecation cycle!
+>
+> This project is based on `kotlinx-datetime` for LocalDate-related operations, not `java.time.*`!
 
 ### Easy to use
 
@@ -54,6 +60,9 @@ Works right out of the box without much setup.
 
 @Composable
 fun SampleHeatMap() {
+  val scrollState = rememberLazyListState()
+  val coroutineScope = rememberCoroutineScope()
+
   var heatMapStyle by remember { mutableStateOf<HeatMapStyle?>(null) }
   val toggleStyle = { heatMapStyle = if (heatMapStyle == null) CustomHeatMapStyle else null }
 
@@ -64,35 +73,54 @@ fun SampleHeatMap() {
       .padding(16.dp)
   ) {
     HeatMap(
-      style = heatMapStyle ?: HeatMapStyle(),
       data = generateHeats(),
+      scrollState = scrollState,
+      style = heatMapStyle ?: HeatMapStyle(),
+      onScrolledToTop = { println("Scrolled to Top") },
+      onScrolledToBottom = { println("Scrolled to Bottom") }
     ) { println("Clicked: $it") }
 
-    Button(
-      onClick = toggleStyle,
+    Column(
       modifier = Modifier
         .align(Alignment.BottomCenter)
-        .padding(16.dp)
+        .padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text("Toggle Style")
+      Button(
+        onClick = toggleStyle,
+      ) {
+        Text("Toggle Style")
+      }
+      Button(onClick = {
+        coroutineScope.launch {
+          scrollState.animateScrollToItem(0)
+        }
+      }) {
+        Text("Scroll to Top")
+      }
+
+      Button(onClick = {
+        coroutineScope.launch {
+          scrollState.animateScrollToItem(scrollState.layoutInfo.totalItemsCount - 1)
+        }
+      }) {
+        Text("Scroll to Bottom")
+      }
     }
   }
 }
 
 // fake data
 private fun generateHeats(): List<Heat<Unit>> {
-  val heats = mutableListOf<Heat<Unit>>()
-  val startDate = LocalDate.of(2022, 11, 11)
-  val curDate = LocalDate.now()
+  val startDate = LocalDate(2022, 11, 11)
+  val curDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-  var currentDate = startDate
-  while (!currentDate.isAfter(curDate)) {
-    val value = Random.nextDouble(0.00, 32.00)
-    heats.add(Heat(currentDate, value))
-    currentDate = currentDate.plusDays(1)
-  }
-
-  return heats
+  return generateSequence(startDate) { date ->
+    if (date < curDate) date + DatePeriod(days = 1) else null
+  }.map { date ->
+    val value = Random.nextDouble(0.0, 32.0)
+    Heat<Unit>(date, value)
+  }.toList()
 }
 ```
 
@@ -129,7 +157,9 @@ internal val CustomHeatMapStyle = HeatMapStyle().copy(
 
 Not just present, but interact.
 
-use `onHeatClick(Heat<T>) -> Unit` to implement it.
+- Click
+- Scroll
+- Reaching the top or pulling back at the end
 
 ### Generic data support
 
@@ -137,6 +167,8 @@ The operation is richer.
 
 ```kotlin
 // ../library/src/commonMain/kotlin/com/fleeys/heatmap/HeatMap.kt
+
+import kotlinx.datetime.LocalDate
 
 data class Heat<T>(
   val date: LocalDate,
@@ -151,11 +183,13 @@ This project is built on Compose in an attempt to adapt to the Compose Multiplat
 
 The currently adapted platforms are listed below:
 
-| Platform | State |                            Sample                            |
-| :------: | :---: | :----------------------------------------------------------: |
-| Android  |   ✅   | [Android-Sample](./sample/src/androidMain/kotlin/com/fleeys/heatmap/sample/MainActivity.kt) |
-| Desktop  |   ✅   | [Desktop-Sample](./sample/src/desktopMain/kotlin/com/fleeys/heatmap/sample/Main.kt) |
-|   ...    |       |                                                              |
+| Platform |      State       |                            Sample                            | Note |
+| :------: | :--------------: | :----------------------------------------------------------: | :--: |
+| Android  |        ✅         | [Android-Sample](./sample/src/androidMain/kotlin/com/fleeys/heatmap/sample/MainActivity.kt) |      |
+| Desktop  |        ✅         | [Desktop-Sample](./sample/src/desktopMain/kotlin/com/fleeys/heatmap/sample/Main.kt) |      |
+|  WasmJs  | :expressionless: |                             ...                              | (1)  |
+
+1. Unfortunately, due to the fact that I don't know much about it, the realization is less than ideal. If you can help me refine it, quite welcome to contribute!
 
 ## Contribution
 
