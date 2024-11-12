@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fleeys.heatmap.i18n.MonthNames
 
 @Immutable
 data class MonthsLabelStyle(
@@ -31,7 +32,8 @@ data class MonthsLabelStyle(
   val shape: Shape = RoundedCornerShape(4.dp),
   val fontStyle: MonthsLabelFontStyle = MonthsLabelFontStyle(),
   val color: MonthsLabelColor = MonthsLabelColor(),
-  val padding: PaddingValues = PaddingValues(2.dp)
+  val padding: PaddingValues = PaddingValues(2.dp),
+  val monthsNames: MonthNames = MonthNames.ENGLISH_ABBREVIATED
 )
 
 @Immutable

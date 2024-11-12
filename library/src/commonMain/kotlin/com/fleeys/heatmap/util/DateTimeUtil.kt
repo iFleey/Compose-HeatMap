@@ -11,12 +11,8 @@
  * limitations under the License.
  */
 
-package com.fleeys.heatmap.model
+package com.fleeys.heatmap.util
 
-import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 
-data class Heat<T>(
-  val date: LocalDate,
-  var value: Double,
-  var data: T? = null
-)
+expect fun getLocalizedMonthName(month: Month): String

@@ -22,5 +22,5 @@ data class HeatMapStyle(
   val heatStyle: HeatStyle = HeatStyle(),
   val labelStyle: LabelStyle = LabelStyle(),
   val heatMapPadding: PaddingValues = PaddingValues(0.dp),
-  val startFromEnd: Boolean = true
+  val startFromEnd: Boolean = true,
 )

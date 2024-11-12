@@ -56,9 +56,14 @@ import com.fleeys.heatmap.style.HeatStyle
 import com.fleeys.heatmap.style.LabelPosition
 import com.fleeys.heatmap.style.LabelStyle
 import com.fleeys.heatmap.style.MonthsLabelStyle
-import java.time.LocalDate
-import java.time.Month
-import java.util.Locale
+import com.fleeys.heatmap.util.getLocalizedMonthName
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlin.time.ExperimentalTime
 
 @Composable
 fun <T> HeatMap(
@@ -84,7 +89,6 @@ fun <T> HeatMap(
       items(weeks) { week ->
         WeekColumn(
           week = week,
-          weeks = weeks,
           style = style,
           valuesRange = valuesRange,
           selectedHeat = selectedHeat,
@@ -108,6 +112,8 @@ private fun DaysOfWeekLabelsColumn(style: LabelStyle) {
     style.daysLabelStyle.namesOfWeek.map { it.replaceFirstChar { char -> char.uppercase() } }
   }
 
+  // God, I'm so stupid, use this is a tricky way to solve the problem of the background of the label in different positions.
+  // Why else would I say I'm stupid? Because I haven't got a better idea lol
   var offsetY by remember { mutableStateOf(0.dp) }
   val density = LocalDensity.current
 
@@ -137,7 +143,6 @@ private fun DaysOfWeekLabelsColumn(style: LabelStyle) {
 @Composable
 private fun <T> WeekColumn(
   week: HeatWeek<T>,
-  weeks: List<HeatWeek<T>>,
   style: HeatMapStyle,
   valuesRange: Pair<Double, Double>,
   selectedHeat: Heat<T>? = null,
@@ -147,13 +152,12 @@ private fun <T> WeekColumn(
     if (style.labelStyle.monthsLabelStyle.position == LabelPosition.TOP) {
       MonthLabel(
         week = week,
-        lastMonth = weeks.first().startOfWeek.month,
         style = style.labelStyle.monthsLabelStyle
       )
     }
 
     (1..7).forEach { dayOfWeek ->
-      val heat = week.days.find { it.date.dayOfWeek.value == dayOfWeek }
+      val heat = week.days.find { it.date.dayOfWeek.isoDayNumber == dayOfWeek }
       val heatColor = heat?.let { getHeatColor(it, valuesRange, style.heatStyle) }
         ?: style.heatStyle.heatColor.inactiveColor
 
@@ -170,7 +174,6 @@ private fun <T> WeekColumn(
     if (style.labelStyle.monthsLabelStyle.position == LabelPosition.BOTTOM) {
       MonthLabel(
         week = week,
-        lastMonth = weeks.first().startOfWeek.month,
         style = style.labelStyle.monthsLabelStyle
       )
     }
@@ -200,10 +203,9 @@ private fun DayItem(dayName: String, style: DaysLabelStyle) {
 @Composable
 private fun <T> MonthLabel(
   week: HeatWeek<T>,
-  lastMonth: Month,
   style: MonthsLabelStyle
 ) {
-  val monthText = getMonthText(week, lastMonth)
+  val monthText = getMonthText(week)
   Box(
     modifier = Modifier
       .height(style.height)
@@ -247,7 +249,7 @@ private fun <T> HeatItem(
     }
   )
 
-  val date = week.startOfWeek.plusDays(dayOfWeek.toLong() - 1)
+  val date = week.startOfWeek.plus(DatePeriod(days = dayOfWeek - 1))
   val clickedHeat = week.days.find { it.date == date }
 
   Box(
@@ -273,15 +275,18 @@ private fun <T> HeatItem(
   }
 }
 
-private fun <T> getMonthText(week: HeatWeek<T>, latestMonth: Month): String {
-  val month = week.startOfWeek.month
-  val previousMonth = week.startOfWeek.minusWeeks(1).month
-  val shouldShowYear = month == latestMonth || month == Month.DECEMBER
+@OptIn(ExperimentalTime::class)
+fun <T> getMonthText(week: HeatWeek<T>): String {
+  val dateTime = week.startOfWeek
+  val month = dateTime.month
+  val previousMonth = dateTime.minus(DatePeriod(days = 7)).month
+
+  val shouldShowYear =
+    (month == Month.JANUARY && dateTime.year != dateTime.minus(DatePeriod(days = 7)).year) ||
+        (month == Month.DECEMBER)
 
   return if (month != previousMonth) {
-    month.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault())
-      .replaceFirstChar { it.uppercase() } +
-        if (shouldShowYear) " ${week.startOfWeek.year}" else ""
+    getLocalizedMonthName(month) + if (shouldShowYear) " ${dateTime.year}" else ""
   } else ""
 }
 

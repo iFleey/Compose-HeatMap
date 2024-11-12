@@ -13,7 +13,7 @@
 
 package com.fleeys.heatmap.model
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 data class HeatWeek<T>(
   val startOfWeek: LocalDate,

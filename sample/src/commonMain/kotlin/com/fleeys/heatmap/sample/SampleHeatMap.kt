@@ -31,8 +31,14 @@ import androidx.compose.ui.unit.dp
 import com.fleeys.heatmap.HeatMap
 import com.fleeys.heatmap.model.Heat
 import com.fleeys.heatmap.style.HeatMapStyle
-import java.time.LocalDate
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
+
 
 @Composable
 fun SampleHeatMap() {
@@ -62,16 +68,13 @@ fun SampleHeatMap() {
 }
 
 private fun generateHeats(): List<Heat<Unit>> {
-  val heats = mutableListOf<Heat<Unit>>()
-  val startDate = LocalDate.of(2022, 11, 11)
-  val curDate = LocalDate.now()
+  val startDate = LocalDate(2022, 11, 11)
+  val curDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-  var currentDate = startDate
-  while (!currentDate.isAfter(curDate)) {
-    val value = Random.nextDouble(0.00, 32.00)
-    heats.add(Heat(currentDate, value))
-    currentDate = currentDate.plusDays(1)
-  }
-
-  return heats
+  return generateSequence(startDate) { date ->
+    if (date < curDate) date + DatePeriod(days = 1) else null
+  }.map { date ->
+    val value = Random.nextDouble(0.0, 32.0)
+    Heat<Unit>(date, value)
+  }.toList()
 }
